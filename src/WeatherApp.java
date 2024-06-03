@@ -48,6 +48,27 @@ public class WeatherApp {
             JSONArray time = (JSONArray) hourly.get("time");
             int index = findIndexOfCurrentTime(time);
 
+            JSONArray temperatureData = (JSONArray) hourly.get("temperature_2m");
+            double temperature = (double) temperatureData.get(index);
+
+            JSONArray weathercode = (JSONArray) hourly.get("weathercode");
+            String weatherCondition = convertWeatherCode((long) weathercode.get(index));
+
+            JSONArray relativeHumidity = (JSONArray) hourly.get("relativehumidity_2m");
+            long humidity = (long) relativeHumidity.get(index);
+
+            JSONArray windspeedData = (JSONArray) hourly.get("windspeed_10m");
+            double windspeed = (double) windspeedData.get(index);
+
+
+            JSONObject weatherData = new JSONObject();
+            weatherData.put("temperature", temperature);
+            weatherData.put("weather_condition", weatherCondition);
+            weatherData.put("humidity", humidity);
+            weatherData.put("windspeed", windspeed);
+
+            return weatherData;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -129,5 +150,20 @@ public class WeatherApp {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH':00'");
         String formattedDateTime = currentDateTime.format(formatter);
         return formattedDateTime;
+    }
+
+    private static String convertWeatherCode(long weathercode) {
+        String weatherCondition = "";
+        if (weathercode == 0L) {
+            weatherCondition = "Clear";
+        } else if (weathercode <= 3L && weathercode > 0L) {
+            weatherCondition = "Cloudy";
+        } else if ((weathercode >= 51 && weathercode <= 67) || (weathercode >= 80 && weathercode <= 99)) {
+            weatherCondition = "Rain";
+        } else if (weathercode >= 71L && weathercode <= 77L) {
+            weatherCondition = "Snow";
+        }
+
+        return weatherCondition;
     }
 }
